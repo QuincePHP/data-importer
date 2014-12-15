@@ -1,0 +1,32 @@
+{
+	"name": "quince/data-importer",
+	"description": "Tool for importing data from tabular data files into laravel models",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Behzad Shabani",
+			"email": "behzad.shabani@gmail.com"
+		}
+	],
+	"require": {
+		"php": ">=5.4.0",
+		"illuminate/support": "~4.0",
+		"illuminate/database": "~4.0",
+		"league/csv": "~6.0"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "~4.0",
+		"mockery/mockery": "~0.9"
+	},
+	"autoload": {
+		"psr-4": {
+			"Quince\\DataImporter\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Quince\\DataImporter\\Tests\\": "tests/"
+		}
+	},
+	"minimum-stability": "dev"
+}
