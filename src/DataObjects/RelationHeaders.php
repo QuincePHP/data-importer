@@ -61,6 +61,8 @@ class RelationHeaders implements Arrayable {
 
 			$tmp[$key] = $value;
 		}
+		
+		return $tmp;
 	}
 
 }
