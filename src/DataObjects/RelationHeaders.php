@@ -1,8 +1,8 @@
 <?php namespace Quince\DataImporter\DataObjects;
 
-use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Contracts\ArrayableInterface;
 
-class RelationHeaders implements Arrayable {
+class RelationHeaders implements ArrayableInterface {
 
 	/**
 	 * @var array|SingleRelationHeaderMap[]
