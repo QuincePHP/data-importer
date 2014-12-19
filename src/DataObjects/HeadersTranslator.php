@@ -10,7 +10,7 @@ class HeadersTranslator implements ArrayableInterface {
 	protected $headers = [];
 
 	/**
-	 * @var array
+	 * @var Dictionary
 	 */
 	protected $dictionary = [];
 
@@ -25,10 +25,10 @@ class HeadersTranslator implements ArrayableInterface {
 	protected $translated = false;
 
 	/**
-	 * @param array $headers
-	 * @param array $dictionary
+	 * @param array      $headers
+	 * @param Dictionary $dictionary
 	 */
-	public function __construct($headers, $dictionary)
+	public function __construct($headers, Dictionary $dictionary)
 	{
 		$this->headers = $headers;
 		$this->dictionary = $dictionary;
