@@ -1,8 +1,8 @@
 <?php namespace Quince\DataImporter\DataObjects;
 
-use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Contracts\ArrayableInterface;
 
-class TranslatedHeaders implements Arrayable {
+class HeadersTranslator implements ArrayableInterface {
 
 	/**
 	 * @var array
@@ -34,7 +34,12 @@ class TranslatedHeaders implements Arrayable {
 		$this->dictionary = $dictionary;
 	}
 
-	public function getTranslatedHeader()
+	/**
+	 * Get translated headers array
+	 *
+	 * @return array
+	 */
+	public function getTranslatedHeaders()
 	{
 		if ($this->translated) {
 			return $this->translatedHeader;
@@ -45,6 +50,9 @@ class TranslatedHeaders implements Arrayable {
 		return $this->translatedHeader;
 	}
 
+	/**
+	 * Generate headers translation
+	 */
 	protected function translate()
 	{
 		foreach ($this->headers as $header) {
@@ -54,6 +62,12 @@ class TranslatedHeaders implements Arrayable {
 		$this->translated = true;
 	}
 
+	/**
+	 * Get translation of specified header
+	 *
+	 * @param $header
+	 * @return mixed
+	 */
 	protected function getTranslation($header)
 	{
 		if (isset($this->dictionary[$header])) {
@@ -70,7 +84,7 @@ class TranslatedHeaders implements Arrayable {
 	 */
 	public function toArray()
 	{
-		return $this->getTranslatedHeader();
+		return $this->getTranslatedHeaders();
 	}
 
 }
