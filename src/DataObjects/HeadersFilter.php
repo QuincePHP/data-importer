@@ -1,11 +1,11 @@
 <?php namespace Quince\DataImporter\DataObjects;
 
-use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Contracts\ArrayableInterface;
 
-class FilteredHeaders implements Arrayable {
+class HeadersFilter implements ArrayableInterface {
 
 	/**
-	 * @var TranslatedHeaders
+	 * @var HeadersTranslator
 	 */
 	protected $headers;
 
@@ -25,7 +25,7 @@ class FilteredHeaders implements Arrayable {
 	protected $filtered = false;
 
 	/**
-	 * @param TranslatedHeaders $headers
+	 * @param HeadersTranslator $headers
 	 * @param array             $tableColumn
 	 */
 	public function __construct($headers, $tableColumn)
