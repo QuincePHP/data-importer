@@ -1,11 +1,9 @@
 <?php namespace Quince\DataImporter\DataObjects;
 
-use Illuminate\Contracts\Support\Arrayable;
-use ArrayIterator;
+use Illuminate\Support\Contracts\ArrayableInterface;
 use IteratorAggregate;
-use Traversable;
 
-class RowsCollection implements Arrayable, IteratorAggregate {
+class RowsCollection implements ArrayableInterface, IteratorAggregate {
 
 	/**
 	 * @var array|RowData[]
@@ -55,11 +53,11 @@ class RowsCollection implements Arrayable, IteratorAggregate {
 	/**
 	 * Retrieve an external iterator
 	 *
-	 * @return Traversable
+	 * @return \Traversable
 	 */
 	public function getIterator()
 	{
-		return new ArrayIterator($this->rows);
+		return new \ArrayIterator($this->rows);
 	}
 
 }

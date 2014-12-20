@@ -1,6 +1,8 @@
 <?php namespace Quince\DataImporter\DataObjects;
 
-class RowData implements DataObjectInterface {
+use Illuminate\Support\Contracts\ArrayableInterface;
+
+class RowData implements ArrayableInterface {
 
 	/**
 	 * @var array
@@ -69,17 +71,8 @@ class RowData implements DataObjectInterface {
 				$tmp[$key] = $value;
 			}
 		}
-	}
 
-	/**
-	 * Renew object properties
-	 *
-	 * @return void
-	 */
-	public function renew()
-	{
-		$this->base = [];
-		$this->relation = null;
+		return $tmp;
 	}
 
 }

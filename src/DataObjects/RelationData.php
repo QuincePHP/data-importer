@@ -1,6 +1,8 @@
 <?php namespace Quince\DataImporter\DataObjects;
 
-class RelationData implements DataObjectInterface {
+use Illuminate\Support\Contracts\ArrayableInterface;
+
+class RelationData implements ArrayableInterface {
 
 	/**
 	 * @param string $relation
@@ -49,18 +51,6 @@ class RelationData implements DataObjectInterface {
 		}
 
 		return $tmp;
-	}
-
-	/**
-	 * Renew object properties
-	 *
-	 * @return void
-	 */
-	public function renew()
-	{
-		foreach ($this as &$property) {
-			unset($property);
-		}
 	}
 
 }
