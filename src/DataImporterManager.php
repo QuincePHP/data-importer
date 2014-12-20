@@ -5,13 +5,7 @@ use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Builder;
 use League\Csv\Reader;
-use Quince\DataImporter\DataObjects\AdditionalFields;
-use Quince\DataImporter\DataObjects\FilteredHeaders;
-use Quince\DataImporter\DataObjects\RelationData;
-use Quince\DataImporter\DataObjects\RelationHeaders;
-use Quince\DataImporter\DataObjects\RowData;
-use Quince\DataImporter\DataObjects\RowsCollection;
-use Quince\DataImporter\DataObjects\TranslatedHeaders;
+use Quince\DataImporter\DataObjects\DataObjectFactory;
 
 class DataImporterManager {
 
@@ -31,9 +25,34 @@ class DataImporterManager {
 	protected $config;
 
 	/**
-	 * @var Builder
+	 * @var bool
 	 */
-	protected $schema;
+	protected $headersRow = true;
+
+	/**
+	 * @var int
+	 */
+	protected $headersRowOffset = 0;
+
+	/**
+	 * @var int
+	 */
+	protected $startRow = 1;
+
+	/**
+	 * @var array
+	 */
+	protected $desiredHeaders = [];
+
+	/**
+	 * @var DataObjects\AdditionalFields
+	 */
+	protected $additionalFields;
+
+	/**
+	 * @var DataObjects\Dictionary
+	 */
+	protected $dictionay;
 
 	/**
 	 * @var string
@@ -46,34 +65,14 @@ class DataImporterManager {
 	protected $reader;
 
 	/**
-	 * @var FilteredHeaders
+	 * @var DataObjects\HeadersFilter
 	 */
-	protected $headers = [];
+	protected $headers;
 
 	/**
-	 * @var RelationHeaders
+	 * @var DataObjects\RelationHeaders
 	 */
-	protected $relationHeaders = [];
-
-	/**
-	 * @var array
-	 */
-	protected $columnHeaders = [];
-
-	/**
-	 * @var bool
-	 */
-	protected $oneColumn = false;
-
-	/**
-	 * @var bool
-	 */
-	protected $noHeader = false;
-
-	/**
-	 * @var int
-	 */
-	protected $skipRows = 1;
+	protected $relationHeaders;
 
 	/**
 	 * @param Container  $app
@@ -83,31 +82,94 @@ class DataImporterManager {
 	{
 		$this->app = $app;
 		$this->config = $config;
-		$this->schema = $this->app->make(Builder::class);
 	}
 
 	/**
+	 * Set headers row existence to false
+	 */
+	public function noHeadersRow()
+	{
+		$this->headersRow = false;
+		$this->startFromRow(0);
+	}
+
+	public function headersRow($rowOffset)
+	{
+		$this->headersRowOffset = $rowOffset;
+	}
+
+	/**
+	 * Determine from which line to start
+	 *
+	 * @param int $rowOffset
+	 */
+	public function startFromRow($rowOffset)
+	{
+		$this->startRow = $rowOffset;
+	}
+
+	/**
+	 * Set desired headers when no header row exist
+	 *
+	 * @param array $headers
+	 */
+	public function setCustomHeaders($headers)
+	{
+		$this->desiredHeaders = $headers;
+	}
+
+	/**
+	 * Determine fields that are not in file and should be set in results
+	 *
+	 * @param array $fields
+	 */
+	public function setAdditionalFields($fields)
+	{
+		$this->additionalFields = DataObjectFactory::make('AdditionalFields', [$fields]);
+	}
+
+	/**
+	 * Set a column translation, file header to sql column name
+	 *
+	 * @param string $columnName
+	 * @param string $translation
+	 */
+	public function setColumnDictionary($columnName, $translation)
+	{
+		$this->getDictionaryObject()->setTermTranslation($columnName, $translation);
+	}
+
+	/**
+	 * Set headers translation, file headers to sql columns name
+	 *
+	 * @param array $dictionary
+	 */
+	public function setDictionary($dictionary)
+	{
+		$this->getDictionaryObject()->setDictionary($dictionary);
+	}
+
+	/**
+	 * Import data from given file to given model
+	 *
 	 * @param string   $filePath
 	 * @param string   $model
 	 * @param callable $closure
-	 * @param array    $additionalFields
-	 * @param array    $aliasDictionary
 	 */
-	public function import($filePath, $model, callable $closure, $additionalFields = [], $aliasDictionary = [])
+	public function import($filePath, $model, callable $closure)
 	{
 		// initialize and storing necessary data
 		$this->filePath = $filePath;
 		$this->initReader();
 
 		// Get csv file headers and translate it to table column name
-		$this->setHeaders($this->app->make($model), $aliasDictionary);
+		$this->setHeaders($this->app->make($model));
 
 		// loop through csv row and pass data to given closure
 		$counter = 0;
 		while (true) {
 			$data = $this->filterData(
-				$this->reader->setOffset($this->getNextOffset($counter), $this->skipRows)->fetchAssoc(),
-				new AdditionalFields($additionalFields)
+				$this->reader->setOffset($this->getNextOffset($counter))->fetchAssoc()
 			);
 
 			if ($data->count() == 0) {
@@ -117,31 +179,6 @@ class DataImporterManager {
 			call_user_func_array($closure, [$data]);
 			$counter++;
 		}
-	}
-
-	/**
-	 * Set oneColumn flag to true
-	 *
-	 * @return $this
-	 */
-	public function oneColumn()
-	{
-		$this->oneColumn = true;
-
-		return $this;
-	}
-
-	/**
-	 * Set noHeader flag to true and skipRows to 0
-	 *
-	 * @return $this
-	 */
-	public function noHeader()
-	{
-		$this->noHeader = false;
-		$this->skipRows = 0;
-
-		return $this;
 	}
 
 	/**
@@ -165,38 +202,64 @@ class DataImporterManager {
 	 * Set import headers
 	 *
 	 * @param Model $model
-	 * @param array $aliasDictionary
 	 */
-	protected function setHeaders($model, $aliasDictionary)
+	protected function setHeaders($model)
 	{
-		$headers = new TranslatedHeaders($this->reader->fetchOne(0), $aliasDictionary);
+		$headers = DataObjectFactory::make('HeadersTranslator', [
+			$this->getHeaders(), $this->getDictionaryObject()
+		]);
+
 		$this->headers = $this->filterHeaders($model, $headers);
 		$this->relationHeaders = $this->fetchRelationHeader($model, $headers);
+	}
+
+	protected function getHeaders()
+	{
+		if (!$this->headersRow) {
+			if (!empty($this->desiredHeaders)) {
+				return $this->desiredHeaders;
+			} else {
+				throw new \Exception();
+			}
+		}
+
+		return $this->reader->fetchOne($this->headersRowOffset);
 	}
 
 	/**
 	 * Filter headers that are not in model's table column list
 	 *
-	 * @param Model             $model
-	 * @param TranslatedHeaders $headers
-	 * @return FilteredHeaders
+	 * @param Model                         $model
+	 * @param DataObjects\HeadersTranslator $headers
+	 * @return DataObjects\HeadersFilter
 	 */
 	protected function filterHeaders($model, $headers)
 	{
 		// get table column list
-		$tableColumn = $this->schema->getColumnListing($model->getTable());
+		$tableColumn = $this->getSchemeBuilder()->getColumnListing($model->getTable());
 
-		return new FilteredHeaders($headers, $tableColumn);
+		return DataObjectFactory::make('HeadersFilter', [$headers, $tableColumn]);
 	}
 
 	/**
-	 * @param Model             $model
-	 * @param TranslatedHeaders $headers
-	 * @return RelationHeaders
+	 * Get schema builder instance
+	 *
+	 * @return mixed
+	 */
+	protected function getSchemeBuilder()
+	{
+		return $this->app->make(Builder::class);
+	}
+
+	/**
+	 * @param Model                         $model
+	 * @param DataObjects\HeadersTranslator $headers
+	 * @return DataObjects\RelationHeaders
 	 */
 	private function fetchRelationHeader($model, $headers)
 	{
-		$relationHeaders = new RelationHeaders();
+		/** @var DataObjects\RelationHeaders $relationHeaders */
+		$relationHeaders = DataObjectFactory::make('RelationHeaders');
 
 		// get headers which are not in given model columns list
 		$otherHeaders = array_diff($headers->toArray(), $this->headers->toArray());
@@ -217,21 +280,30 @@ class DataImporterManager {
 	}
 
 	/**
-	 * @param array            $rawData
-	 * @param AdditionalFields $additionalFields
-	 * @return RowsCollection
+	 * @param int $iterateCounter
+	 * @return mixed
 	 */
-	protected function filterData($rawData, AdditionalFields $additionalFields)
+	protected function getNextOffset($iterateCounter)
 	{
-		$rowsCollection = new RowsCollection();
-		$rowData = new RowData();
-		$relationData = new RelationData();
+		return $iterateCounter * $this->config->get(self::PACKAGE . '::chunk_size') + $this->startRow;
+	}
+
+	/**
+	 * @param array $rawData
+	 * @return DataObjects\RowsCollection
+	 */
+	protected function filterData($rawData)
+	{
+		$rowsCollection = DataObjectFactory::make('RowsCollection');
 
 		// Loop through rows to filter its data
 		foreach ($rawData as $row) {
-			// renew data objects
-			$rowData->renew();
-			$relationData->renew();
+			/**
+			 * @var DataObjects\RowData      $rowData
+			 * @var DataObjects\RelationData $relationData
+			 */
+			$rowData = DataObjectFactory::make('RowData');
+			$relationData = DataObjectFactory::make('RelationData');
 
 			// Loop through each field in a row
 			foreach ($row as $header => $fieldValue) {
@@ -248,25 +320,22 @@ class DataImporterManager {
 					);
 
 					// Set data foreach relation value
+					$singleRelationHeaderMap = $this->relationHeaders->getSingleRelation($header);
 					foreach ($values as $value) {
 						$relationData->addRelationData(
-							$this->relationHeaders->getSingleRelation($header)->getRelationName(),
-							[$this->relationHeaders->getSingleRelation($header)->getColumnName() => $value]
+							$singleRelationHeaderMap->getRelationName(),
+							[$singleRelationHeaderMap->getColumnName() => $value]
 						);
 					}
 
 					// if any additional fields isset for the relation, would append it
 					// to relation data object
-					if (
-					$additionalFields->hasForRelation(
-						$this->relationHeaders->getSingleRelation($header)->getRelationName()
-					)
-					) {
+					if ($this->additionalFields->hasForRelation($singleRelationHeaderMap->getRelationName())) {
 						$relationData->appendToRelationData(
-							$this->relationHeaders->getSingleRelation($header)->getRelationName(),
-							$additionalFields->getRelationsFields([
-									$this->relationHeaders->getSingleRelation($header)->getRelationName()
-								])
+							$singleRelationHeaderMap->getRelationName(),
+							$this->additionalFields->getRelationsFields([
+								$singleRelationHeaderMap->getRelationName()
+							])
 						);
 					}
 				} // end of elseif
@@ -274,26 +343,31 @@ class DataImporterManager {
 				// add relations data to row data object
 				$rowData->setRelation($relationData);
 
-				if ($additionalFields->hasForBase()) {
-					$rowData->appendToBaseData($additionalFields->getBaseFields());
+				if ($this->additionalFields->hasForBase()) {
+					$rowData->appendToBaseData($this->additionalFields->getBaseFields());
 				}
 			} // end of row fields foreach
 
 			// Add row object to row collection
 			$rowsCollection->addRow($rowData);
+
 		} // end of rows foreach
 
 		return $rowsCollection;
 	}
 
 	/**
-	 * @param int $iterateCounter
-	 * @param int $skiped
-	 * @return mixed
+	 * Get Dictionary data object
+	 *
+	 * @return DataObjects\Dictionary
 	 */
-	protected function getNextOffset($iterateCounter, $skiped = 1)
+	protected function getDictionaryObject()
 	{
-		return $iterateCounter * $this->config->get(self::PACKAGE . '::chunk_size') + $skiped;
+		if (!isset($this->dictionary)) {
+			$this->dictionary = DataObjectFactory::make('Dictionary');
+		}
+
+		return $this->dictionay;
 	}
 
 }
