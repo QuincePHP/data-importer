@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Contracts\ArrayableInterface;
 
-class HeadersFilter implements ArrayableInterface {
+class HeadersFilter implements ArrayableInterface, \ArrayAccess {
 
 	/**
 	 * @var HeadersTranslator
@@ -75,6 +75,51 @@ class HeadersFilter implements ArrayableInterface {
 	public function toArray()
 	{
 		return $this->getFilteredHeaders();
+	}
+
+	/**
+	 * Whether a offset exists
+	 *
+	 * @param mixed $offset
+	 * @return bool
+	 */
+	public function offsetExists($offset)
+	{
+		return isset($this->filteredHeaders[$offset]);
+	}
+
+	/**
+	 * Offset to retrieve
+	 *
+	 * @param mixed $offset
+	 * @return mixed
+	 */
+	public function offsetGet($offset)
+	{
+		return $this->offsetExists($offset) ? $this->filteredHeaders[$offset] : null;
+	}
+
+	/**
+	 * Offset to set
+	 *
+	 * @param mixed $offset
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function offsetSet($offset, $value)
+	{
+		$this->filteredHeaders[$offset] = $value;
+	}
+
+	/**
+	 * Offset to unset
+	 *
+	 * @param mixed $offset
+	 * @return void
+	 */
+	public function offsetUnset($offset)
+	{
+		unset($this->filteredHeaders[$offset]);
 	}
 
 }
