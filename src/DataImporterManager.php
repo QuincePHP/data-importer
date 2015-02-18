@@ -10,122 +10,170 @@ use Quince\DataImporter\DataObjects\DataObjectFactory;
 class DataImporterManager {
 
 	/**
+	 * Package alias name
+	 *
 	 * @const string
 	 */
 	const PACKAGE = 'data-importer';
 
 	/**
+	 * Application Container
+	 *
 	 * @var Container
 	 */
 	protected $app;
 
 	/**
+	 * Config repository
+	 *
 	 * @var Repository
 	 */
 	protected $config;
 
 	/**
+	 * Weather file has header row or not
+	 *
 	 * @var bool
 	 */
 	protected $headersRow = true;
 
 	/**
+	 * Row offset of header row
+	 *
 	 * @var int
 	 */
 	protected $headersRowOffset = 0;
 
 	/**
+	 * Offset of row to start
+	 *
 	 * @var int
 	 */
 	protected $startRow = 1;
 
 	/**
+	 * Columns to be used
+	 *
 	 * @var array
 	 */
 	protected $desiredHeaders = [];
 
 	/**
+	 * Additional fields to be added
+	 *
 	 * @var DataObjects\AdditionalFields
 	 */
 	protected $additionalFields;
 
 	/**
+	 * Headers dictionary
+	 *
 	 * @var DataObjects\Dictionary
 	 */
 	protected $dictionay;
 
 	/**
+	 * Path to file to be imported
+	 *
 	 * @var string
 	 */
 	protected $filePath;
 
 	/**
+	 * Reader instance
+	 *
 	 * @var Reader
 	 */
 	protected $reader;
 
 	/**
+	 * Headers to be used
+	 *
 	 * @var DataObjects\HeadersFilter
 	 */
 	protected $headers;
 
 	/**
+	 * Headers of relation columns
+	 *
 	 * @var DataObjects\RelationHeaders
 	 */
 	protected $relationHeaders;
 
 	/**
-	 * @param Container  $app
-	 * @param Repository $config
+	 * Instantiate data importer manager
+	 *
+	 * @param Container $app
 	 */
-	public function __construct(Container $app, Repository $config)
+	public function __construct(Container $app)
 	{
 		$this->app = $app;
-		$this->config = $config;
+		$this->config = $app['config'];
 	}
 
 	/**
 	 * Set headers row existence to false
+	 *
+	 * @return DataImporterManager
 	 */
 	public function noHeadersRow()
 	{
 		$this->headersRow = false;
 		$this->startFromRow(0);
+
+		return $this;
 	}
 
+	/**
+	 * Determine read heders from which row
+	 *
+	 * @param int $rowOffset
+	 * @return DataImporterManager
+	 */
 	public function headersRow($rowOffset)
 	{
 		$this->headersRowOffset = $rowOffset;
+
+		return $this;
 	}
 
 	/**
 	 * Determine from which line to start
 	 *
 	 * @param int $rowOffset
+	 * @return DataImporterManager
 	 */
 	public function startFromRow($rowOffset)
 	{
 		$this->startRow = $rowOffset;
+
+		return $this;
 	}
 
 	/**
 	 * Set desired headers when no header row exist
 	 *
 	 * @param array $headers
+	 * @return DataImporterManager
 	 */
 	public function setCustomHeaders($headers)
 	{
 		$this->desiredHeaders = $headers;
+
+		return $this;
 	}
 
 	/**
 	 * Determine fields that are not in file and should be set in results
 	 *
 	 * @param array $fields
+	 * @return DataImporterManager
 	 */
 	public function setAdditionalFields($fields)
 	{
 		$this->additionalFields = DataObjectFactory::make('AdditionalFields', [$fields]);
+
+		return $this;
 	}
 
 	/**
@@ -133,20 +181,26 @@ class DataImporterManager {
 	 *
 	 * @param string $columnName
 	 * @param string $translation
+	 * @return DataImporterManager
 	 */
 	public function setColumnDictionary($columnName, $translation)
 	{
 		$this->getDictionaryObject()->setTermTranslation($columnName, $translation);
+
+		return $this;
 	}
 
 	/**
 	 * Set headers translation, file headers to sql columns name
 	 *
 	 * @param array $dictionary
+	 * @return DataImporterManager
 	 */
 	public function setDictionary($dictionary)
 	{
 		$this->getDictionaryObject()->setDictionary($dictionary);
+
+		return $this;
 	}
 
 	/**
@@ -213,6 +267,12 @@ class DataImporterManager {
 		$this->relationHeaders = $this->fetchRelationHeader($model, $headers);
 	}
 
+	/**
+	 * Get datasheet columns headers
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
 	protected function getHeaders()
 	{
 		if (!$this->headersRow) {
@@ -244,7 +304,7 @@ class DataImporterManager {
 	/**
 	 * Get schema builder instance
 	 *
-	 * @return mixed
+	 * @return Builder
 	 */
 	protected function getSchemeBuilder()
 	{
@@ -252,6 +312,8 @@ class DataImporterManager {
 	}
 
 	/**
+	 * Get relation headers
+	 *
 	 * @param Model                         $model
 	 * @param DataObjects\HeadersTranslator $headers
 	 * @return DataObjects\RelationHeaders
@@ -280,6 +342,8 @@ class DataImporterManager {
 	}
 
 	/**
+	 * Get next offset
+	 *
 	 * @param int $iterateCounter
 	 * @return mixed
 	 */
@@ -289,6 +353,8 @@ class DataImporterManager {
 	}
 
 	/**
+	 * Filter data with desired headers
+	 *
 	 * @param array $rawData
 	 * @return DataObjects\RowsCollection
 	 */
