@@ -56,7 +56,7 @@ class DataImporterManager {
 	 *
 	 * @var array
 	 */
-	protected $desiredHeaders = [];
+	protected $customHeaders = [];
 
 	/**
 	 * Additional fields to be added
@@ -158,7 +158,7 @@ class DataImporterManager {
 	 */
 	public function setCustomHeaders($headers)
 	{
-		$this->desiredHeaders = $headers;
+		$this->customHeaders = $headers;
 
 		return $this;
 	}
@@ -275,10 +275,10 @@ class DataImporterManager {
 	protected function getHeaders()
 	{
 		if (!$this->headersRow) {
-			if (!empty($this->desiredHeaders)) {
-				return $this->desiredHeaders;
+			if (!empty($this->customHeaders)) {
+				return $this->customHeaders;
 			} else {
-				throw new \Exception();
+				throw new \Exception('Custom header should be specified when headers row sets to false');
 			}
 		}
 
@@ -445,7 +445,7 @@ class DataImporterManager {
 	protected function getHeadersList()
 	{
 		if (!$this->headersRow) {
-			return $this->desiredHeaders;
+			return $this->customHeaders;
 		}
 
 		return 0;

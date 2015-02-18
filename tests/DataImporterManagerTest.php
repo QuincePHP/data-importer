@@ -161,6 +161,34 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
+	 * @expectedException \Exception
+	 * @expectedExceptionMessage Custom header should be specified when headers row sets to false
+	 */
+	public function testImportingCsvWithNoHeadersRowException()
+	{
+		// constant variables
+		$model = 'SampleModel';
+		$tableName = 'model_table';
+		$filePath = __DIR__ . '/data/no-header.csv';
+		$tableColumn = ['username', 'password', 'email'];
+
+		$customHeader = ['name', 'username', 'password', 'email'];
+
+		/**
+		 * @var Mockery\MockInterface $app
+		 * @var Mockery\MockInterface $config
+		 */
+		list($app, $config) = $this->mockObjects($model, $tableName, $tableColumn);
+
+		$calledTime = 0;
+
+		$this->getSut($app, $config)->noHeadersRow()
+		     ->import($filePath, $model, function ($data) use (&$calledTime) {
+			     $calledTime++;
+		     });
+	}
+
+	/**
 	 * @param $model
 	 * @param $tableName
 	 * @param $tableColumn
