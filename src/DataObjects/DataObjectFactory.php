@@ -13,7 +13,7 @@ class DataObjectFactory {
 	 */
 	public static function make($dataObjectName, $parameters = [])
 	{
-		$class = __NAMESPACE__ . ucfirst(Str::camel($dataObjectName));
+		$class = __NAMESPACE__ . '\\' . ucfirst(Str::camel($dataObjectName));
 
 		if (!class_exists($class)) {
 			throw new \Exception('Cannot find DataObject ' . $class);

@@ -10,7 +10,7 @@ class RelationData implements ArrayableInterface {
 	 */
 	public function addRelationData($relation, $data)
 	{
-		$this->$relation[] = $data;
+		$this->$relation = array_merge((array) $this->$relation, [$data]);
 	}
 
 	/**
@@ -51,6 +51,20 @@ class RelationData implements ArrayableInterface {
 		}
 
 		return $tmp;
+	}
+
+	/**
+	 * Check if data is
+	 *
+	 * @return bool
+	 */
+	public function isEmpty()
+	{
+		foreach ($this as $prop) {
+			return false;
+		}
+
+		return true;
 	}
 
 }

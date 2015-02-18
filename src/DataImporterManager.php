@@ -70,7 +70,7 @@ class DataImporterManager {
 	 *
 	 * @var DataObjects\Dictionary
 	 */
-	protected $dictionay;
+	protected $dictionary;
 
 	/**
 	 * Path to file to be imported
@@ -223,7 +223,9 @@ class DataImporterManager {
 		$counter = 0;
 		while (true) {
 			$data = $this->filterData(
-				$this->reader->setOffset($this->getNextOffset($counter))->fetchAssoc()
+				$this->reader->setOffset($this->getNextOffset($counter))
+				             ->setLimit($this->config->get(self::PACKAGE . '::chunk_size'))
+				             ->fetchAssoc()
 			);
 
 			if ($data->count() == 0) {
@@ -395,7 +397,10 @@ class DataImporterManager {
 
 					// if any additional fields isset for the relation, would append it
 					// to relation data object
-					if ($this->additionalFields->hasForRelation($singleRelationHeaderMap->getRelationName())) {
+					if (
+						!is_null($this->additionalFields) &&
+						$this->additionalFields->hasForRelation($singleRelationHeaderMap->getRelationName())
+					) {
 						$relationData->appendToRelationData(
 							$singleRelationHeaderMap->getRelationName(),
 							$this->additionalFields->getRelationsFields([
@@ -408,7 +413,7 @@ class DataImporterManager {
 				// add relations data to row data object
 				$rowData->setRelation($relationData);
 
-				if ($this->additionalFields->hasForBase()) {
+				if (!is_null($this->additionalFields) && $this->additionalFields->hasForBase()) {
 					$rowData->appendToBaseData($this->additionalFields->getBaseFields());
 				}
 			} // end of row fields foreach
@@ -432,7 +437,7 @@ class DataImporterManager {
 			$this->dictionary = DataObjectFactory::make('Dictionary');
 		}
 
-		return $this->dictionay;
+		return $this->dictionary;
 	}
 
 }

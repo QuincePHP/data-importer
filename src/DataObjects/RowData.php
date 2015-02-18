@@ -44,7 +44,7 @@ class RowData implements ArrayableInterface {
 	 */
 	public function setRelation(RelationData $relation)
 	{
-		$this->relation = $relation->toArray();
+		$this->relation = $relation;
 	}
 
 	/**
