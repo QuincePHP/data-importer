@@ -314,17 +314,16 @@ class DataImporterManager {
 	/**
 	 * Get relation headers
 	 *
-	 * @param Model                         $model
-	 * @param DataObjects\HeadersTranslator $headers
+	 * @param Model $model
 	 * @return DataObjects\RelationHeaders
 	 */
-	private function fetchRelationHeader($model, $headers)
+	private function fetchRelationHeader($model)
 	{
 		/** @var DataObjects\RelationHeaders $relationHeaders */
 		$relationHeaders = DataObjectFactory::make('RelationHeaders');
 
 		// get headers which are not in given model columns list
-		$otherHeaders = array_diff($headers->toArray(), $this->headers->toArray());
+		$otherHeaders = $this->headers->getOtherHeaders();
 
 		// loop through other headers to find any relation headers
 		foreach ($otherHeaders as $key => $value) {

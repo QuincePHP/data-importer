@@ -122,4 +122,9 @@ class HeadersFilter implements ArrayableInterface, \ArrayAccess {
 		unset($this->filteredHeaders[$offset]);
 	}
 
+	public function getOtherHeaders()
+	{
+		return array_diff($this->headers->toArray(), $this->getFilteredHeaders());
+	}
+
 }
