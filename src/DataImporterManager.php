@@ -225,7 +225,7 @@ class DataImporterManager {
 			$data = $this->filterData(
 				$this->reader->setOffset($this->getNextOffset($counter))
 				             ->setLimit($this->config->get(self::PACKAGE . '::chunk_size'))
-				             ->fetchAssoc()
+				             ->fetchAssoc($this->getHeadersList())
 			);
 
 			if ($data->count() == 0) {
@@ -249,9 +249,6 @@ class DataImporterManager {
 		$this->reader->setDelimiter($this->config->get(self::PACKAGE . '::delimiter'));
 		$this->reader->setEnclosure($this->config->get(self::PACKAGE . '::enclosure'));
 		$this->reader->setEscape($this->config->get(self::PACKAGE . '::escape'));
-
-		// Set limit size foreach chunk of rows
-		$this->reader->setLimit($this->config->get(self::PACKAGE . '::chunk_size'));
 	}
 
 	/**
@@ -438,6 +435,20 @@ class DataImporterManager {
 		}
 
 		return $this->dictionary;
+	}
+
+	/**
+	 * Get the list of headers if file has no header row
+	 *
+	 * @return array|int
+	 */
+	protected function getHeadersList()
+	{
+		if (!$this->headersRow) {
+			return $this->desiredHeaders;
+		}
+
+		return 0;
 	}
 
 }

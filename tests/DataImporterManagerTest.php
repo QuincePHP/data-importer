@@ -56,7 +56,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			$calledTime++;
 		});
 
-		$this->assertEquals(ceil(10000/$this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
 	}
 
 	public function testImportingSimpleCsvWithExtraHeaders()
@@ -99,7 +99,65 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			$calledTime++;
 		});
 
-		$this->assertEquals(ceil(10000/$this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
+	}
+
+	public function testImportingCsvWithNoHeadersRow()
+	{
+		// constant variables
+		$model = 'SampleModel';
+		$tableName = 'model_table';
+		$filePath = __DIR__ . '/data/no-header.csv';
+		$tableColumn = ['username', 'password', 'email'];
+
+		$customHeader = ['name', 'username', 'password', 'email'];
+
+		/**
+		 * @var Mockery\MockInterface $app
+		 * @var Mockery\MockInterface $config
+		 */
+		list($app, $config) = $this->mockObjects($model, $tableName, $tableColumn);
+
+		$calledTime = 0;
+
+		$this->getSut($app, $config)->noHeadersRow()->setCustomHeaders($customHeader)
+		     ->import($filePath, $model, function ($data) use (&$calledTime) {
+
+			     /** @var \Quince\DataImporter\DataObjects\RowsCollection $data */
+			     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RowsCollection', $data);
+			     $this->assertLessThanOrEqual($this->getChunkSize(), $data->count());
+
+			     $itteration = 0;
+
+			     /** @var \Quince\DataImporter\DataObjects\RowData $row */
+			     foreach ($data as $row) {
+				     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RowData', $row);
+				     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RelationData', $row->getRelation());
+				     $this->assertTrue($row->getRelation()->isEmpty());
+
+				     // Check the first row is parsed
+				     if ($itteration == 0 && $calledTime == 0) {
+					     $this->assertEquals($row->getBase()['username'], 'cpalmer0');
+					     $this->assertEquals($row->getBase()['password'], 'qLd2s2T');
+					     $this->assertEquals($row->getBase()['email'], 'cpalmer0@biblegateway.com');
+				     }
+
+				     $itteration++;
+			     }
+
+			     foreach ($data->toArray() as $value) {
+
+				     $this->assertArrayNotHasKey('name', $value['base']);
+				     $this->assertArrayHasKey('username', $value['base']);
+				     $this->assertArrayHasKey('email', $value['base']);
+				     $this->assertArrayHasKey('password', $value['base']);
+				     $this->assertEmpty($value['relation']);
+			     }
+
+			     $calledTime++;
+		     });
+
+		$this->assertEquals(ceil(10001 / $this->getChunkSize()), $calledTime);
 	}
 
 	/**
