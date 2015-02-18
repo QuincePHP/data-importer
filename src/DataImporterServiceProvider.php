@@ -26,10 +26,7 @@ class DataImporterServiceProvider extends ServiceProvider {
 		$this->app->alias('importer', DataImporterManager::class);
 
 		$this->app->bind('importer', function ($app) {
-			return new DataImporterManager(
-				$app,
-				$app['config']
-			);
+			return new DataImporterManager($app);
 		});
 
 		$this->app->bind('Quince\Contracts\DataImporter\Importer', function ($app) {
