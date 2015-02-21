@@ -7,9 +7,10 @@
 + ~~Import csv file with no header row~~
 + ~~Setting header row offset~~
 + ~~Start from row offset~~
-+ Additional fields
++ ~~Additional fields~~
 + Set single column dictionary
 + Set headers dictionary
++ Relation
 
 ## Current Issues
 

@@ -287,6 +287,61 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 
 	}
 
+	public function testImportingSimpleCsvWithAdditionalFields()
+	{
+		// constant variables
+		$model = 'SampleModel';
+		$tableName = 'model_table';
+		$filePath = __DIR__ . '/data/exact-columns.csv';
+		$tableColumn = ['username', 'password', 'email'];
+		$additionalFields = [
+			'base' => [
+				'usergroup' => '64',
+				'active'    => '1'
+			]
+		];
+
+		/**
+		 * @var Mockery\MockInterface $app
+		 * @var Mockery\MockInterface $config
+		 */
+		list($app, $config) = $this->mockObjects($model, $tableName, $tableColumn);
+
+		$calledTime = 0;
+
+		$this->getSut($app, $config)->setAdditionalFields($additionalFields)
+		     ->import($filePath, $model, function ($data) use (&$calledTime) {
+
+			     /** @var \Quince\DataImporter\DataObjects\RowsCollection $data */
+			     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RowsCollection', $data);
+			     $this->assertLessThanOrEqual($this->getChunkSize(), $data->count());
+
+			     /** @var \Quince\DataImporter\DataObjects\RowData $row */
+			     foreach ($data as $row) {
+				     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RowData', $row);
+				     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RelationData', $row->getRelation());
+				     $this->assertTrue($row->getRelation()->isEmpty());
+
+				     $this->assertEquals($row->getBase()['usergroup'], '64');
+				     $this->assertEquals($row->getBase()['active'], '1');
+			     }
+
+			     foreach ($data->toArray() as $value) {
+				     $this->assertArrayNotHasKey('name', $value['base']);
+				     $this->assertArrayHasKey('username', $value['base']);
+				     $this->assertArrayHasKey('email', $value['base']);
+				     $this->assertArrayHasKey('password', $value['base']);
+				     $this->assertArrayHasKey('usergroup', $value['base']);
+				     $this->assertArrayHasKey('active', $value['base']);
+				     $this->assertEmpty($value['relation']);
+			     }
+
+			     $calledTime++;
+		     });
+
+		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
+	}
+
 	/**
 	 * @param $model
 	 * @param $tableName
@@ -333,8 +388,8 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @param Mockery\MockInterface|Container $app
-	 * @param Mockery\MockInterface|Repository  $config
+	 * @param Mockery\MockInterface|Container  $app
+	 * @param Mockery\MockInterface|Repository $config
 	 * @return DataImporterManager
 	 */
 	protected function getSut($app, $config)
