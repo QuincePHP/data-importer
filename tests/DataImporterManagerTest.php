@@ -342,6 +342,99 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
 	}
 
+	public function testImportingWithSingleColumnDictionary()
+	{
+		// constant variables
+		$model = 'SampleModel';
+		$tableName = 'model_table';
+		$filePath = __DIR__ . '/data/not-exact-columns.csv';
+		$tableColumn = ['username', 'password', 'email'];
+
+		/**
+		 * @var Mockery\MockInterface $app
+		 * @var Mockery\MockInterface $config
+		 */
+		list($app, $config) = $this->mockObjects($model, $tableName, $tableColumn);
+
+		$calledTime = 0;
+
+		$this->getSut($app, $config)->setColumnDictionary('nick name', 'username')
+		     ->import($filePath, $model, function ($data) use (&$calledTime) {
+
+			     /** @var \Quince\DataImporter\DataObjects\RowsCollection $data */
+			     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RowsCollection', $data);
+			     $this->assertLessThanOrEqual($this->getChunkSize(), $data->count());
+
+			     /** @var \Quince\DataImporter\DataObjects\RowData $row */
+			     foreach ($data as $row) {
+				     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RowData', $row);
+				     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RelationData', $row->getRelation());
+				     $this->assertTrue($row->getRelation()->isEmpty());
+			     }
+
+			     foreach ($data->toArray() as $value) {
+				     $this->assertArrayNotHasKey('name', $value['base']);
+				     $this->assertArrayHasKey('username', $value['base']);
+				     $this->assertArrayHasKey('email', $value['base']);
+				     $this->assertArrayHasKey('password', $value['base']);
+				     $this->assertEmpty($value['relation']);
+			     }
+
+			     $calledTime++;
+		     });
+
+		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
+	}
+
+	public function testImportingWithDictionary()
+	{
+		// constant variables
+		$model = 'SampleModel';
+		$tableName = 'model_table';
+		$filePath = __DIR__ . '/data/exact-columns.csv';
+		$tableColumn = ['u_name', 'pass', 'email'];
+
+		$dictionary = [
+			'username' => 'u_name',
+		    'password' => 'pass'
+		];
+
+		/**
+		 * @var Mockery\MockInterface $app
+		 * @var Mockery\MockInterface $config
+		 */
+		list($app, $config) = $this->mockObjects($model, $tableName, $tableColumn);
+
+		$calledTime = 0;
+
+		$this->getSut($app, $config)->setDictionary($dictionary)
+		     ->import($filePath, $model, function ($data) use (&$calledTime) {
+
+			     /** @var \Quince\DataImporter\DataObjects\RowsCollection $data */
+			     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RowsCollection', $data);
+			     $this->assertLessThanOrEqual($this->getChunkSize(), $data->count());
+
+			     /** @var \Quince\DataImporter\DataObjects\RowData $row */
+			     foreach ($data as $row) {
+				     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RowData', $row);
+				     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RelationData', $row->getRelation());
+				     $this->assertTrue($row->getRelation()->isEmpty());
+			     }
+
+			     foreach ($data->toArray() as $value) {
+				     $this->assertArrayNotHasKey('name', $value['base']);
+				     $this->assertArrayHasKey('u_name', $value['base']);
+				     $this->assertArrayHasKey('email', $value['base']);
+				     $this->assertArrayHasKey('pass', $value['base']);
+				     $this->assertEmpty($value['relation']);
+			     }
+
+			     $calledTime++;
+		     });
+
+		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
+	}
+
 	/**
 	 * @param $model
 	 * @param $tableName

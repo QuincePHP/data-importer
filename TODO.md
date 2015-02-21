@@ -8,8 +8,8 @@
 + ~~Setting header row offset~~
 + ~~Start from row offset~~
 + ~~Additional fields~~
-+ Set single column dictionary
-+ Set headers dictionary
++ ~~Set single column dictionary~~
++ ~~Set headers dictionary~~
 + Relation
 
 ## Current Issues
