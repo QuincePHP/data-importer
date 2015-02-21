@@ -1,12 +1,14 @@
 # TODOs
 
+## TODO lists
+
 + Implement ArrayAccess interface for RowCollection, RowData and RelationData
 + Complete documentation
 + A new Branch for laravel 5
 + Clean up data objects
 + Optimization (if necessary)
 
-# Tests
+## Tests
 
 + ~~Import csv file with exact column of model's table~~
 + ~~Import csv file with extra fields to mode'ls table~~
@@ -18,7 +20,7 @@
 + ~~Set headers dictionary~~
 + Relation
 
-# Current Issues
+## Current Issues
 
 + An empty result would add if had a blank line in csv file
 + Empty sub object would return if no data match with filters
