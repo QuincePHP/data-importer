@@ -172,8 +172,6 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 		$filePath = __DIR__ . '/data/no-header.csv';
 		$tableColumn = ['username', 'password', 'email'];
 
-		$customHeader = ['name', 'username', 'password', 'email'];
-
 		/**
 		 * @var Mockery\MockInterface $app
 		 * @var Mockery\MockInterface $config
@@ -183,7 +181,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 		$calledTime = 0;
 
 		$this->getSut($app, $config)->noHeadersRow()
-		     ->import($filePath, $model, function ($data) use (&$calledTime) {
+		     ->import($filePath, $model, function () use (&$calledTime) {
 			     $calledTime++;
 		     });
 	}
@@ -335,7 +333,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @param Mockery\MockInterface|Application $app
+	 * @param Mockery\MockInterface|Container $app
 	 * @param Mockery\MockInterface|Repository  $config
 	 * @return DataImporterManager
 	 */
