@@ -132,7 +132,10 @@ class DataImporterManager {
 	 */
 	public function headersRow($rowOffset)
 	{
-		$this->headersRowOffset = $rowOffset;
+		if ($rowOffset != 0) {
+			$this->headersRowOffset = $rowOffset;
+			$this->startFromRow(0);
+		}
 
 		return $this;
 	}
@@ -448,7 +451,7 @@ class DataImporterManager {
 			return $this->customHeaders;
 		}
 
-		return 0;
+		return $this->headersRowOffset;
 	}
 
 }

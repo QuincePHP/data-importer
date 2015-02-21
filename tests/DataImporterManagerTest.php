@@ -188,6 +188,48 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 		     });
 	}
 
+	public function testSettingHeadersRowOffset()
+	{
+		// constant variables
+		$model = 'SampleModel';
+		$tableName = 'model_table';
+		$filePath = __DIR__ . '/data/custom-header-rows.csv';
+		$tableColumn = ['username', 'password', 'email'];
+
+		/**
+		 * @var Mockery\MockInterface $app
+		 * @var Mockery\MockInterface $config
+		 */
+		list($app, $config) = $this->mockObjects($model, $tableName, $tableColumn);
+
+		$calledTime = 0;
+
+		$this->getSut($app, $config)->headersRow(3)
+		     ->import($filePath, $model, function ($data) use (&$calledTime) {
+
+			     /** @var \Quince\DataImporter\DataObjects\RowsCollection $data */
+			     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RowsCollection', $data);
+			     $this->assertLessThanOrEqual($this->getChunkSize(), $data->count());
+
+			     /** @var \Quince\DataImporter\DataObjects\RowData $row */
+			     foreach ($data as $row) {
+				     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RowData', $row);
+				     $this->assertInstanceOf('\Quince\DataImporter\DataObjects\RelationData', $row->getRelation());
+				     $this->assertTrue($row->getRelation()->isEmpty());
+			     }
+
+			     foreach ($data->toArray() as $value) {
+				     $this->assertArrayNotHasKey('name', $value['base']);
+				     $this->assertArrayHasKey('username', $value['base']);
+				     $this->assertArrayHasKey('email', $value['base']);
+				     $this->assertArrayHasKey('password', $value['base']);
+				     $this->assertEmpty($value['relation']);
+			     }
+
+			     $calledTime++;
+		     });
+	}
+
 	/**
 	 * @param $model
 	 * @param $tableName
