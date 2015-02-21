@@ -148,7 +148,7 @@ class DataImporterManager {
 	 */
 	public function startFromRow($rowOffset)
 	{
-		$this->startRow = $rowOffset;
+		$this->startRow = (($rowOffset - 1) > 0) ? $rowOffset - 1 : 0;
 
 		return $this;
 	}
