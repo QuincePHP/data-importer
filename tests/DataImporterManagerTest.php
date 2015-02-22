@@ -2,6 +2,8 @@
 
 use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
+use Illuminate\Database\Connection;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Builder;
 use Mockery;
@@ -446,6 +448,8 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 		$app = $this->getMockery(Container::class);
 		$config = $this->getMockery(Repository::class);
 		$modelInstance = $this->getMockery(Model::class);
+		$database = $this->getMockery(DatabaseManager::class);
+		$connection = $this->getMockery(Connection::class);
 		$schema = $this->getMockery(Builder::class);
 
 		$app->shouldReceive('offsetGet')->with('config')->andReturn($config);
@@ -457,7 +461,9 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 		       ->andReturn($this->getChunkSize());
 		$config->shouldReceive('get')->with(DataImporterManager::PACKAGE . '::relation_joint')->andReturn('.');
 
-		$app->shouldReceive('make')->once()->with(Builder::class)->andReturn($schema);
+		$app->shouldReceive('offsetGet')->once()->with('db')->andReturn($database);
+		$database->shouldReceive('connection')->once()->andReturn($connection);
+		$connection->shouldReceive('getSchemaBuilder')->once()->andReturn($schema);
 		$app->shouldReceive('make')->once()->with($model)->andReturn($modelInstance);
 		$modelInstance->shouldReceive('getTable')->once()->andReturn($tableName);
 		$schema->shouldReceive('getColumnListing')->once()->with($tableName)->andReturn($tableColumn);
