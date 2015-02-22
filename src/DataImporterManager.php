@@ -310,7 +310,7 @@ class DataImporterManager {
 	 */
 	protected function getSchemeBuilder()
 	{
-		return $this->app->make(Builder::class);
+		return $this->app['db']->connection()->getSchemaBuilder();
 	}
 
 	/**
