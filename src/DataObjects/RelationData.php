@@ -76,4 +76,20 @@ class RelationData implements ArrayableInterface {
 		return true;
 	}
 
+	/**
+	 * Get an array with the values of a given key.
+	 *
+	 * @param string $relation
+	 * @param string $key
+	 * @return array
+	 */
+	public function lists($relation, $key)
+	{
+		return array_map(function ($item) use ($key) {
+			if (isset($item[$key])) {
+				return $item[$key];
+			}
+		}, (array) $this->$relation);
+	}
+
 }
