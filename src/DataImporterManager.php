@@ -343,7 +343,7 @@ class DataImporterManager {
 			if (strpos($value, $this->config->get(self::PACKAGE . '::relation_joint'))) {
 				list($relation, $column) = explode($this->config->get(self::PACKAGE . '::relation_joint'), $value);
 
-				if ($model->touches($relation)) {
+				if (method_exists($model, $relation)) {
 					$relationHeaders->addRelationHeader($key, $relation, $column);
 				}
 			}
