@@ -50,10 +50,14 @@ class RowData implements ArrayableInterface, ArrayAccess {
 
 	/**
 	 * @param array $data
+	 * @param bool  $overwrite
 	 */
-	public function appendToBaseData(Array $data)
+	public function appendToBaseData(Array $data, $overwrite = false)
 	{
-		$this->base = array_merge($this->base, $data);
+		$this->base = array_merge(
+			$this->base,
+			$this->filterAditionalData($data, $overwrite)
+		);
 	}
 
 	/**
@@ -115,7 +119,9 @@ class RowData implements ArrayableInterface, ArrayAccess {
 	 */
 	public function offsetSet($offset, $value)
 	{
-		return false;
+		if ($this->offsetExists($offset)) {
+			return call_user_func([$this, 'set' . camel_case(strtolower($offset))]);
+		}
 	}
 
 	/**
@@ -145,6 +151,17 @@ class RowData implements ArrayableInterface, ArrayAccess {
 	public function getRelationArray()
 	{
 		return $this->relation->toArray();
+	}
+
+	protected function filterAditionalData($data, $overwrite = false)
+	{
+		if ($overwrite) {
+			return $data;
+		}
+
+		return array_filter($data, function ($value, $key) {
+			return (!isset($this->base[$key]) || is_null($this->base[$key]) || $this->base[$key] == '');
+		}, ARRAY_FILTER_USE_BOTH);
 	}
 
 }

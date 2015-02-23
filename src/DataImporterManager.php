@@ -101,6 +101,13 @@ class DataImporterManager {
 	protected $relationHeaders;
 
 	/**
+	 * Overwrite existing data with additional fields
+	 *
+	 * @var bool
+	 */
+	protected $overwriteAdditionalFields;
+
+	/**
 	 * Instantiate data importer manager
 	 *
 	 * @param Container $app
@@ -170,10 +177,13 @@ class DataImporterManager {
 	 * Determine fields that are not in file and should be set in results
 	 *
 	 * @param array $fields
+	 * @param bool  $overwrite
 	 * @return DataImporterManager
 	 */
-	public function setAdditionalFields($fields)
+	public function setAdditionalFields($fields, $overwrite = false)
 	{
+		$this->overwriteAdditionalFields = $overwrite;
+
 		$this->additionalFields = DataObjectFactory::make('AdditionalFields', [$fields]);
 
 		return $this;
@@ -414,7 +424,10 @@ class DataImporterManager {
 				$rowData->setRelation($relationData);
 
 				if (!is_null($this->additionalFields) && $this->additionalFields->hasForBase()) {
-					$rowData->appendToBaseData($this->additionalFields->getBaseFields());
+					$rowData->appendToBaseData(
+						$this->additionalFields->getBaseFields(),
+						$this->overwriteAdditionalFields
+					);
 				}
 			} // end of row fields foreach
 
