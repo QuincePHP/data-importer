@@ -44,7 +44,7 @@ return [
 
 	/*
 	|--------------------------------------------------------------------------
-	| Chunk size
+	| Relation header joint
 	|--------------------------------------------------------------------------
 	|
 	| The character to join relation name and column of relation table you want
@@ -52,5 +52,15 @@ return [
 	|
 	*/
 	'relation_joint' => '.',
+
+	/*
+	|--------------------------------------------------------------------------
+	| Relation value delimiter
+	|--------------------------------------------------------------------------
+	|
+	| The character to seperate relation values.
+	|
+	*/
+    'relation_value_delimiter' => '|'
 
 ];
