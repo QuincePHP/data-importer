@@ -49,7 +49,7 @@ class DataImporterManager {
 	 *
 	 * @var int
 	 */
-	protected $startRow = 1;
+	protected $startRow = 0;
 
 	/**
 	 * Columns to be used

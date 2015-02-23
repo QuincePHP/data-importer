@@ -40,11 +40,22 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			$this->assertInstanceOf('\Quince\DataImporter\DataObjects\RowsCollection', $data);
 			$this->assertLessThanOrEqual($this->getChunkSize(), $data->count());
 
+			$itteration = 0;
+
 			/** @var \Quince\DataImporter\DataObjects\RowData $row */
 			foreach ($data as $row) {
 				$this->assertInstanceOf('\Quince\DataImporter\DataObjects\RowData', $row);
 				$this->assertInstanceOf('\Quince\DataImporter\DataObjects\RelationData', $row->getRelation());
 				$this->assertTrue($row->getRelation()->isEmpty());
+
+				// Check the first row is parsed
+				if ($itteration == 0 && $calledTime == 0) {
+					$this->assertEquals($row->getBase()['username'], 'mhughes0');
+					$this->assertEquals($row->getBase()['password'], 'mIIWWompDK');
+					$this->assertEquals($row->getBase()['email'], 'rreid0@devhub.com');
+				}
+
+				$itteration++;
 			}
 
 			foreach ($data->toArray() as $value) {
@@ -58,7 +69,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			$calledTime++;
 		});
 
-		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10001 / $this->getChunkSize()), $calledTime);
 	}
 
 	public function testImportingSimpleCsvWithExtraHeaders()
@@ -101,7 +112,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			$calledTime++;
 		});
 
-		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10001 / $this->getChunkSize()), $calledTime);
 	}
 
 	public function testImportingCsvWithNoHeadersRow()
@@ -341,7 +352,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			     $calledTime++;
 		     });
 
-		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10001 / $this->getChunkSize()), $calledTime);
 	}
 
 	public function testImportingWithSingleColumnDictionary()
@@ -385,7 +396,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			     $calledTime++;
 		     });
 
-		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10001 / $this->getChunkSize()), $calledTime);
 	}
 
 	public function testImportingWithDictionary()
@@ -434,7 +445,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			     $calledTime++;
 		     });
 
-		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10001 / $this->getChunkSize()), $calledTime);
 	}
 
 	/**
