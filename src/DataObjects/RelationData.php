@@ -4,6 +4,15 @@ use Illuminate\Support\Contracts\ArrayableInterface;
 
 class RelationData implements ArrayableInterface {
 
+	function __get($name)
+	{
+		if (isset($this->$name)) {
+			return $this->$name;
+		}
+
+		return null;
+	}
+
 	/**
 	 * @param string $relation
 	 * @param array  $data
