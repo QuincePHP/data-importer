@@ -69,7 +69,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			$calledTime++;
 		});
 
-		$this->assertEquals(ceil(10001 / $this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
 	}
 
 	public function testImportingSimpleCsvWithExtraHeaders()
@@ -112,7 +112,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			$calledTime++;
 		});
 
-		$this->assertEquals(ceil(10001 / $this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
 	}
 
 	public function testImportingCsvWithNoHeadersRow()
@@ -170,7 +170,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			     $calledTime++;
 		     });
 
-		$this->assertEquals(ceil(10001 / $this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
 	}
 
 	/**
@@ -240,7 +240,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			     $calledTime++;
 		     });
 
-		$this->assertEquals(ceil(10001 / $this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
 	}
 
 	public function testSettingStartRowOffset()
@@ -352,7 +352,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			     $calledTime++;
 		     });
 
-		$this->assertEquals(ceil(10001 / $this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
 	}
 
 	public function testImportingWithSingleColumnDictionary()
@@ -396,7 +396,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			     $calledTime++;
 		     });
 
-		$this->assertEquals(ceil(10001 / $this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
 	}
 
 	public function testImportingWithDictionary()
@@ -445,7 +445,7 @@ class DataImporterManagerTest extends \PHPUnit_Framework_TestCase {
 			     $calledTime++;
 		     });
 
-		$this->assertEquals(ceil(10001 / $this->getChunkSize()), $calledTime);
+		$this->assertEquals(ceil(10000 / $this->getChunkSize()), $calledTime);
 	}
 
 	/**
