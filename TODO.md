@@ -2,7 +2,7 @@
 
 ## TODO lists
 
-+ Implement ArrayAccess interface for RowCollection, RowData and RelationData
++ ~~Implement ArrayAccess interface for RowData and RelationData~~
 + Complete documentation
 + A new Branch for laravel 5
 + Clean up data objects
@@ -22,6 +22,6 @@
 
 ## Current Issues
 
-+ An empty result would add if had a blank line in csv file
-+ Empty sub object would return if no data match with filters
++ ~~An empty result would add if had a blank line in csv file~~
++ ~~Empty sub object would return if no data match with filters~~
 
