@@ -4,6 +4,10 @@ use Illuminate\Support\Contracts\ArrayableInterface;
 
 class RelationData implements ArrayableInterface {
 
+	/**
+	 * @param $name
+	 * @return null
+	 */
 	function __get($name)
 	{
 		if (isset($this->$name)) {
@@ -19,7 +23,9 @@ class RelationData implements ArrayableInterface {
 	 */
 	public function addRelationData($relation, $data)
 	{
-		$this->$relation = array_merge((array) $this->$relation, [$data]);
+		if (!$this->relationDataIsEmpty($data)) {
+			$this->$relation = array_merge((array) $this->$relation, [$data]);
+		}
 	}
 
 	/**
@@ -90,6 +96,17 @@ class RelationData implements ArrayableInterface {
 				return $item[$key];
 			}
 		}, (array) $this->$relation);
+	}
+
+	/**
+	 * @param $data
+	 * @return bool
+	 */
+	protected function relationDataIsEmpty($data)
+	{
+		return empty(array_filter($data, function ($item) {
+			return (!is_null($item) && !empty($item));
+		}));
 	}
 
 }

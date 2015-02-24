@@ -423,11 +423,13 @@ class DataImporterManager {
 				// add relations data to row data object
 				$rowData->setRelation($relationData);
 
-				if (!is_null($this->additionalFields) && $this->additionalFields->hasForBase()) {
-					$rowData->appendToBaseData(
-						$this->additionalFields->getBaseFields(),
-						$this->overwriteAdditionalFields
-					);
+				if (!$rowData->isEmpty()) {
+					if (!is_null($this->additionalFields) && $this->additionalFields->hasForBase()) {
+						$rowData->appendToBaseData(
+							$this->additionalFields->getBaseFields(),
+							$this->overwriteAdditionalFields
+						);
+					}
 				}
 			} // end of row fields foreach
 
