@@ -4,6 +4,7 @@
 
 + ~~Implement ArrayAccess interface for RowData and RelationData~~
 + Complete documentation
++ Wiki page
 + A new Branch for laravel 5
 + Clean up data objects
 + Optimization (if necessary)
