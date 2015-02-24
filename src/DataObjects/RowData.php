@@ -120,7 +120,7 @@ class RowData implements ArrayableInterface, ArrayAccess {
 	public function offsetSet($offset, $value)
 	{
 		if ($this->offsetExists($offset)) {
-			return call_user_func([$this, 'set' . camel_case(strtolower($offset))]);
+			call_user_func([$this, 'set' . camel_case(strtolower($offset))]);
 		}
 	}
 
@@ -153,15 +153,27 @@ class RowData implements ArrayableInterface, ArrayAccess {
 		return $this->relation->toArray();
 	}
 
+	public function isEmpty()
+	{
+		return ((empty($this->base) || $this->baseIsEmpty()) && $this->relation->isEmpty());
+	}
+
 	protected function filterAditionalData($data, $overwrite = false)
 	{
 		if ($overwrite) {
 			return $data;
 		}
 
-		return array_filter($data, function ($value, $key) {
+		return array_filter($data, function ($key) {
 			return (!isset($this->base[$key]) || is_null($this->base[$key]) || $this->base[$key] == '');
-		}, ARRAY_FILTER_USE_BOTH);
+		}, ARRAY_FILTER_USE_KEY);
+	}
+
+	protected function baseIsEmpty()
+	{
+		return empty(array_filter($this->base, function ($item) {
+			return (!is_null($item));
+		}));
 	}
 
 }
