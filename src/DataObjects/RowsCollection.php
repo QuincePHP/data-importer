@@ -23,7 +23,9 @@ class RowsCollection implements ArrayableInterface, IteratorAggregate {
 	 */
 	public function addRow(RowData $row)
 	{
-		array_push($this->rows, $row);
+		if (!$row->isEmpty()) {
+			array_push($this->rows, $row);
+		}
 	}
 
 	/**
