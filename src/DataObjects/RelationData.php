@@ -1,8 +1,9 @@
 <?php namespace Quince\DataImporter\DataObjects;
 
+use ArrayAccess;
 use Illuminate\Support\Contracts\ArrayableInterface;
 
-class RelationData implements ArrayableInterface {
+class RelationData implements ArrayableInterface, ArrayAccess {
 
 	/**
 	 * @param $name
@@ -99,6 +100,55 @@ class RelationData implements ArrayableInterface {
 	}
 
 	/**
+	 * Whether a offset exists
+	 *
+	 * @param mixed $offset
+	 * @return boolean
+	 */
+	public function offsetExists($offset)
+	{
+		return isset($this->$offset);
+	}
+
+	/**
+	 * Offset to retrieve
+	 *
+	 * @param mixed $offset
+	 * @return mixed
+	 */
+	public function offsetGet($offset)
+	{
+		if ($this->offsetExists($offset)) {
+			return $this->$offset;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Offset to set
+	 *
+	 * @param mixed $offset
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function offsetSet($offset, $value)
+	{
+		$this->$offset = $value;
+	}
+
+	/**
+	 * Offset to unset
+	 *
+	 * @param mixed $offset
+	 * @return void
+	 */
+	public function offsetUnset($offset)
+	{
+		unset($this->$offset);
+	}
+
+	/**
 	 * @param $data
 	 * @return bool
 	 */
@@ -108,5 +158,4 @@ class RelationData implements ArrayableInterface {
 			return (!is_null($item) && !empty($item));
 		}));
 	}
-
 }
