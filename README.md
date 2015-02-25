@@ -4,11 +4,19 @@ Tool for importing data from tabular data files into laravel models
 
 ## Installation
 
-Add data-importer to your composer.json file:
+Add data-importer to your composer.json file.
 
+for laravel 4:
 ```json
 "require": {
   "opilo/data-importer": "~1.0"
+}
+```
+
+and for laravel 4:
+```json
+"require": {
+  "opilo/data-importer": "~2.0"
 }
 ```
 
@@ -32,11 +40,18 @@ Register the service provider within the providers array found in `app/config/ap
 
 Next step is to publish package configuration by running:
 
+in laravel 4 run:
+
 ```bash
 $ php artisan config:publish opilo/data-importer
 ```
 
-Config file could be found in `app/config/packages/opilo/data-importer/config.php`
+and in laravel 5 run:
+```bash
+$ php artisan vendor:publish
+```
+
+Config file could be found in `app/config/packages/quince/data-importer/config.php` for laravel 4 and in `config/quince/data-importer.php` 
 
 ## Usage
 
