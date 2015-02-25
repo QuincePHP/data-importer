@@ -11,7 +11,9 @@ class DataImporterServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-		$this->package('quince/data-importer');
+		$this->publishes([
+			__DIR__ . '/config/data-importer.php' => config_path('quince/data-importer.php')
+		]);
 	}
 
 	/**
@@ -21,8 +23,6 @@ class DataImporterServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-		$this->app['config']->package('quince/data-importer', __DIR__ . '/config');
-
 		$this->app->alias('importer', DataImporterManager::class);
 
 		$this->app->bind('importer', function ($app) {
