@@ -164,9 +164,13 @@ class RowData implements ArrayableInterface, ArrayAccess {
 			return $data;
 		}
 
-		return array_filter($data, function ($key) {
-			return (!isset($this->base[$key]) || is_null($this->base[$key]) || $this->base[$key] == '');
-		}, ARRAY_FILTER_USE_KEY);
+		return array_flip(
+			array_filter(
+				array_flip($data), function ($key) {
+					return (!isset($this->base[$key]) || is_null($this->base[$key]) || $this->base[$key] === '');
+				}
+			)
+		);
 	}
 
 	protected function baseIsEmpty()
