@@ -13,7 +13,7 @@ for laravel 4:
 }
 ```
 
-and for laravel 4:
+and for laravel 5:
 ```json
 "require": {
   "quince/data-importer": "~2.0"
