@@ -9,14 +9,14 @@ Add data-importer to your composer.json file.
 for laravel 4:
 ```json
 "require": {
-  "opilo/data-importer": "~1.0"
+  "quince/data-importer": "~1.0"
 }
 ```
 
 and for laravel 4:
 ```json
 "require": {
-  "opilo/data-importer": "~2.0"
+  "quince/data-importer": "~2.0"
 }
 ```
 
@@ -32,7 +32,7 @@ Register the service provider within the providers array found in `app/config/ap
 
 ```php
 'providers' => array(
-    'Opilo\DataImporter\DataImporterServiceProvider'
+    'Quince\DataImporter\DataImporterServiceProvider'
 )
 ```
 
@@ -43,7 +43,7 @@ Next step is to publish package configuration by running:
 in laravel 4 run:
 
 ```bash
-$ php artisan config:publish opilo/data-importer
+$ php artisan config:publish quince/data-importer
 ```
 
 and in laravel 5 run:
